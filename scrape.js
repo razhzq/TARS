@@ -208,7 +208,7 @@ async function handleAccountDetails(accountName, accountsMap) {
 // save tweets tp db
 async function saveTweetsToDb(tokenMatchedTweets, accountsMap) {
   let detectedTokens = [];
-  console.log('tweets to process: ', tokenMatchedTweets.length);
+  console.log("tweets to process: ", tokenMatchedTweets.length);
   for (let i = 0; i < tokenMatchedTweets.length; i++) {
     const tweetSignals = tokenMatchedTweets[i].signals;
     const accountName = tokenMatchedTweets[i].tweetWho;
@@ -255,8 +255,7 @@ async function saveTweetsToDb(tokenMatchedTweets, accountsMap) {
     }
   }
 
-   console.log('detected tokens: ', detectedTokens);
-
+  console.log("detected tokens: ", detectedTokens);
 }
 
 (async () => {
@@ -264,10 +263,10 @@ async function saveTweetsToDb(tokenMatchedTweets, accountsMap) {
   const accountMap = await getAccountMap();
 
   const page = await twitterlogin();
-  setTimeout(async () => {
+  setInterval(async () => {
     const tweets = await scrapeTweets(page);
     const uniqueTweets = await removeDuplicate(tweets);
     const tokenTweets = await extractToken(uniqueTweets);
     await saveTweetsToDb(tokenTweets, accountMap);
-  }, 10000)
+  }, 60000);
 })();
