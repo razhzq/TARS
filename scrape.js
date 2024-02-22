@@ -144,10 +144,10 @@ async function removeDuplicate(tweetsArray) {
   return newTweetsArray;
 }
 
-async function checkTokenChain(token) {
+async function checkTokenChain(tokenName) {
   try {
     const token = await axios.get(
-      `https://api.dexscreener.com/latest/dex/search?q=${token}`
+      `https://api.dexscreener.com/latest/dex/search?q=${tokenName}`
     );
     const tokenData = token.data.pairs;
     console.log(tokenData);
