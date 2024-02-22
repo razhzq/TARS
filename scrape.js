@@ -147,13 +147,13 @@ async function removeDuplicate(tweetsArray) {
 async function checkTokenChain(token) {
   try {
     const token = await axios.get(
-      `https://api.dexscreener.com/latest/dex/search?q=WBNB%20USDC`
+      `https://api.dexscreener.com/latest/dex/search?q=${token}`
     );
-    const tokenData = token.data;
+    const tokenData = token.data.pairs;
     console.log(tokenData);
     const hasEthChain = tokenData.some((obj) => obj.chainId === "ethereum");
     const hasSolChain = tokenData.some((obj) => obj.chainId === "solana");
-
+   
     return hasEthChain || hasSolChain;
   } catch (error) {
     console.log("dexScreenerAPi: ", error);
@@ -251,13 +251,15 @@ async function saveTweetsToDb(tokenMatchedTweets, accountsMap) {
   }
 }
 
-(async () => {
-  // constant
-  const accountMap = await getAccountMap();
+// (async () => {
+//   // constant
+//   const accountMap = await getAccountMap();
 
-  const page = await twitterlogin();
-  const tweets = await scrapeTweets(page);
-  const uniqueTweets = await removeDuplicate(tweets);
-  const tokenTweets = extractToken(uniqueTweets);
-  await saveTweetsToDb(tokenTweets, accountMap);
-})();
+//   const page = await twitterlogin();
+//   const tweets = await scrapeTweets(page);
+//   const uniqueTweets = await removeDuplicate(tweets);
+//   const tokenTweets = extractToken(uniqueTweets);
+//   await saveTweetsToDb(tokenTweets, accountMap);
+// })();
+
+checkTokenChain()
