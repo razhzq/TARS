@@ -264,8 +264,10 @@ async function saveTweetsToDb(tokenMatchedTweets, accountsMap) {
   const accountMap = await getAccountMap();
 
   const page = await twitterlogin();
-  const tweets = await scrapeTweets(page);
-  const uniqueTweets = await removeDuplicate(tweets);
-  const tokenTweets = await extractToken(uniqueTweets);
-  await saveTweetsToDb(tokenTweets, accountMap);
+  setTimeout(async () => {
+    const tweets = await scrapeTweets(page);
+    const uniqueTweets = await removeDuplicate(tweets);
+    const tokenTweets = await extractToken(uniqueTweets);
+    await saveTweetsToDb(tokenTweets, accountMap);
+  }, 10000)
 })();

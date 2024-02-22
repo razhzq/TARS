@@ -1,32 +1,76 @@
 require("dotenv").config();
 const Tweet = require("../class/tweet.class");
+const Mention = require("../class/mention.class");
+const Token = require("../class/token.class");
 
-module.exports.getTokenRanking = async () => {
-     const tweets = await Tweet.getTweets();
+module.exports.getTokenRanking = async (_, res) => {
+  const tweets = await Tweet.getTweets();
+  const tokens = await Token.getAllTokens();
+  const mentions = await Mention.getAllMention();
 
-     const tokenMap = new Map();
-     let furthestTimestamp = -Infinity;
-     let closestTimestamp = Infinity;
+  const tokenMap = new Map();
+  let furthestTimestamp = -Infinity;
+  let closestTimestamp = Infinity;
 
-     const currentTime = new Date();
+  const currentTime = new Date();
 
-     tweets.forEach(({ tweetTime, tweetToken}) => {
-        if(tokenMap.has(tweetToken)) { 
-           const timeDifference = Math.abs(new Date(tweetTime) - currentTime);
-           if(timeDifference > furthestTimestamp) {
-            furthestTimestamp = timeDifference;
-            tokenMap.set(tweetToken, { earliestTimeDetection: tweetTime, latestTimeDetection, tweetToken });
-           } else if (timeDifference < closestTimestamp) {
-            closestTimestamp = timeDifference;
-            tokenMap.set(tweetToken, { latestTimeDetection: tweetTime, earliestTimeDetection,  tweetToken });
-           }
-        } else {
-            tokenMap.set(tweetToken, {  earliestTimeDetection: tweetTime, latestTimeDetection: tweetTime,  tweetToken });
-        }
-     })
+  tweets.forEach(({ tweetTime, tweetToken }) => {
+    if (tokenMap.has(tweetToken)) {
+      const timeDifference = Math.abs(new Date(tweetTime) - currentTime);
+      if (timeDifference > furthestTimestamp) {
+        furthestTimestamp = timeDifference;
+        // Retrieve the current value of latestTimeDetection and update it if necessary
+        const currentEntry = tokenMap.get(tweetToken);
+        tokenMap.set(tweetToken, {
+          earliestTimeDetection: currentEntry.earliestTimeDetection,
+          latestTimeDetection: tweetTime, // Update latestTimeDetection
+          tweetToken,
+        });
+      } else if (timeDifference < closestTimestamp) {
+        closestTimestamp = timeDifference;
+        // Retrieve the current value of earliestTimeDetection and update it if necessary
+        const currentEntry = tokenMap.get(tweetToken);
+        tokenMap.set(tweetToken, {
+          earliestTimeDetection: tweetTime, // Update earliestTimeDetection
+          latestTimeDetection: currentEntry.latestTimeDetection,
+          tweetToken,
+        });
+      }
+    } else {
+      tokenMap.set(tweetToken, {
+        earliestTimeDetection: tweetTime,
+        latestTimeDetection: tweetTime,
+        tweetToken,
+      });
+    }
+  });
 
-     console.log(tokenMap);
+  const tokenRanks = Array.from(tokenMap.values());
+  //add token weight and total account mentioned
+  
 
+  for (let i = 0; i < tokenRanks.length; i++) {
+    const token = tokens.filter(
+      (item) => item.tokenName === tokenRanks[i].tweetToken
+    );
 
+    const mentionsTokenArr = mentions.filter(item => item.tokenId === token[0].tokenId);
 
-}
+    // unique account mentions
+    const uniqueMentions = mentionsTokenArr.reduce((acc, current) => {
+      const existingEntry = acc.find(
+        (item) => item.accountId === current.accountId
+      );
+      if (!existingEntry) {
+        acc.push({ accountId: current.accountId, tokenId: current.tokenId });
+      }
+  
+      return acc;
+    }, []);
+
+    tokenRanks[i].tokenWeight = token[0].tokenWeight;
+    tokenRanks[i].totalMentioned = uniqueMentions.length;
+  }
+
+  res.status(200).json(tokenRanks);
+};
