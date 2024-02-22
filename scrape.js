@@ -251,15 +251,14 @@ async function saveTweetsToDb(tokenMatchedTweets, accountsMap) {
   }
 }
 
-// (async () => {
-//   // constant
-//   const accountMap = await getAccountMap();
+(async () => {
+  // constant
+  const accountMap = await getAccountMap();
 
-//   const page = await twitterlogin();
-//   const tweets = await scrapeTweets(page);
-//   const uniqueTweets = await removeDuplicate(tweets);
-//   const tokenTweets = extractToken(uniqueTweets);
-//   await saveTweetsToDb(tokenTweets, accountMap);
-// })();
+  const page = await twitterlogin();
+  const tweets = await scrapeTweets(page);
+  const uniqueTweets = await removeDuplicate(tweets);
+  const tokenTweets = extractToken(uniqueTweets);
+  await saveTweetsToDb(tokenTweets, accountMap);
+})();
 
-checkTokenChain()
