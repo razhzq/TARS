@@ -150,10 +150,9 @@ async function checkTokenChain(tokenName) {
       `https://api.dexscreener.com/latest/dex/search?q=${tokenName}`
     );
     const tokenData = token.data.pairs;
-    console.log(tokenData);
     const hasEthChain = tokenData.some((obj) => obj.chainId === "ethereum");
     const hasSolChain = tokenData.some((obj) => obj.chainId === "solana");
-   
+
     return hasEthChain || hasSolChain;
   } catch (error) {
     console.log("dexScreenerAPi: ", error);
@@ -172,7 +171,7 @@ async function extractToken(newTweetsArray) {
         matches.map(async (match) => {
           const token = match[1].toLowerCase();
           const checkStatus = await checkTokenChain(token);
-          return checkStatus !== false ? match : null;
+          return checkStatus !== false ? token : null;
         })
       );
 
@@ -181,11 +180,14 @@ async function extractToken(newTweetsArray) {
       const uniqueSignal = filteredSignalMatch.filter((value, index, self) => {
         return self.indexOf(value) === index;
       });
-      newTweetsArray[i].signals = uniqueSignal;
-      tokenMatchedTweets.push(newTweetsArray[i]);
+
+      if (uniqueSignal.length > 0) {
+        newTweetsArray[i].signals = uniqueSignal;
+        tokenMatchedTweets.push(newTweetsArray[i]);
+      }
     } else continue;
   }
-
+  console.log(tokenMatchedTweets.length);
   return tokenMatchedTweets;
 }
 
@@ -199,22 +201,25 @@ async function handleAccountDetails(accountName, accountsMap) {
       accountDetails = await Account.getAccountDetails(accountName);
     }
   }
-  console.log("account deets:", accountDetails);
+
   return accountDetails;
 }
 
 // save tweets tp db
 async function saveTweetsToDb(tokenMatchedTweets, accountsMap) {
   let detectedTokens = [];
+  console.log('tweets to process: ', tokenMatchedTweets.length);
   for (let i = 0; i < tokenMatchedTweets.length; i++) {
     const tweetSignals = tokenMatchedTweets[i].signals;
     const accountName = tokenMatchedTweets[i].tweetWho;
     const accountDetails = await handleAccountDetails(accountName, accountsMap);
     const accountId = accountDetails.id;
     const accountTier = accountDetails.signalTier;
+
     console.log(
-      `iteration: ${i} accountId:${accountId} accountTier:${accountTier} `
+      `iteration: ${i} accountId:${accountId} accountTier:${accountTier}`
     );
+
     for (let j = 0; j < tweetSignals.length; j++) {
       const tokenExist = await Token.checkTokenIfExist(tweetSignals[j]);
       if (!tokenExist) {
@@ -249,6 +254,9 @@ async function saveTweetsToDb(tokenMatchedTweets, accountsMap) {
       });
     }
   }
+
+   console.log('detected tokens: ', detectedTokens);
+
 }
 
 (async () => {
@@ -258,7 +266,6 @@ async function saveTweetsToDb(tokenMatchedTweets, accountsMap) {
   const page = await twitterlogin();
   const tweets = await scrapeTweets(page);
   const uniqueTweets = await removeDuplicate(tweets);
-  const tokenTweets = extractToken(uniqueTweets);
+  const tokenTweets = await extractToken(uniqueTweets);
   await saveTweetsToDb(tokenTweets, accountMap);
 })();
-
