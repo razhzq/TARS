@@ -14,7 +14,7 @@ const Tweet = require('./class/tweet.class');
 
 
 const db = require("./database/index");
-const { getTokenRanking } = require('./controller/token.controller');
+const { getTokenRanking, tokenRankingHour } = require('./controller/token.controller');
 
 
 sequelize
@@ -44,7 +44,12 @@ app.use(
 );
 
 
-app.get("/tokenranking", getTokenRanking);
+app.get("/tokenranking", tokenRankingHour(0), getTokenRanking);
+app.get("/tokenranking/1hr", tokenRankingHour(1), getTokenRanking);
+app.get("/tokenranking/6hr", tokenRankingHour(6), getTokenRanking);
+app.get("/tokenranking/12hr", tokenRankingHour(12), getTokenRanking);
+app.get("/tokenranking/24hr", tokenRankingHour(24), getTokenRanking);
+
 
 app.post("/tweetsbytoken", Tweet.getTweetsByToken);
 

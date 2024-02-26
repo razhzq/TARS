@@ -9,22 +9,24 @@ const candle = require("../database/candle.model")(sequelize, Sequelize);
 class Candle {
   constructor() {}
 
-  static async newTokenCandle(tokenId, tokenWeight) {
+  static async newTokenCandle(tokenId, tokenWeight, increment) {
     await candle.create({
       token: tokenId,
       tokenWeight: tokenWeight,
       checkpoint: new Date(),
+      increment: increment,
+      dStatus: 0
     });
   }
 
   static async updateCandleStatus(candleId) {
-    await candle.update({ dStatus: 0 }, { where: { id: candleId } });
+    await candle.update({ dStatus: 1 }, { where: { id: candleId } });
   }
 
   static async getAllCandle() {
     const candles = await candle.findAll(
       {
-        attributes: ["id", "token", "checkpoint", "increment"],
+        attributes: ["id", "token", "checkpoint", "increment", "dStatus"],
       },
       { where: { dStatus: 1 } }
     );

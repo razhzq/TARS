@@ -247,7 +247,7 @@ async function saveTweetsToDb(tokenMatchedTweets, accountsMap) {
         accTierWeight
       );
       //add candle
-      await Candle.newTokenCandle(tokenId, newTokenWeight);
+      await Candle.newTokenCandle(tokenId, newTokenWeight, accTierWeight);
       detectedTokens.push({
         token: tweetSignals[j],
         account: accountName,

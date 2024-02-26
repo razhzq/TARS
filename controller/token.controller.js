@@ -3,10 +3,31 @@ const Tweet = require("../class/tweet.class");
 const Mention = require("../class/mention.class");
 const Token = require("../class/token.class");
 
-module.exports.getTokenRanking = async (_, res) => {
+module.exports.tokenRankingHour = (hour) => {
+  return (req, res, next) => {
+    var currentDate = new Date();
+
+    var currentHour = currentDate.getHours();
+    var hoursAgo = currentHour - hour;
+
+    if (hoursAgo < 0) {
+      currentDate.setDate(currentDate.getDate() - 1);
+      hoursAgo += 24;
+    }
+
+    currentDate.setHours(hoursAgo);
+    req.currentDate = currentDate;
+    next();
+  };
+};
+
+module.exports.getTokenRanking = async (req, res) => {
   const tweets = await Tweet.getTweets();
   const tokens = await Token.getAllTokens();
   const mentions = await Mention.getAllMention();
+
+  const timeFilter = req.currentDate;
+  const timeFilteredTweets = tweets.filter(tweet => tweet.tweetTime >= timeFilter);
 
   const tokenMap = new Map();
   let furthestTimestamp = -Infinity;
@@ -14,7 +35,7 @@ module.exports.getTokenRanking = async (_, res) => {
 
   const currentTime = new Date();
 
-  tweets.forEach(({ tweetTime, tweetToken }) => {
+  timeFilteredTweets.forEach(({ tweetTime, tweetToken }) => {
     if (tokenMap.has(tweetToken)) {
       const timeDifference = Math.abs(new Date(tweetTime) - currentTime);
       if (timeDifference > furthestTimestamp) {
@@ -47,14 +68,15 @@ module.exports.getTokenRanking = async (_, res) => {
 
   const tokenRanks = Array.from(tokenMap.values());
   //add token weight and total account mentioned
-  
 
   for (let i = 0; i < tokenRanks.length; i++) {
     const token = tokens.filter(
       (item) => item.tokenName === tokenRanks[i].tweetToken
     );
 
-    const mentionsTokenArr = mentions.filter(item => item.tokenId === token[0].tokenId);
+    const mentionsTokenArr = mentions.filter(
+      (item) => item.tokenId === token[0].tokenId
+    );
 
     // unique account mentions
     const uniqueMentions = mentionsTokenArr.reduce((acc, current) => {
@@ -64,7 +86,7 @@ module.exports.getTokenRanking = async (_, res) => {
       if (!existingEntry) {
         acc.push({ accountId: current.accountId, tokenId: current.tokenId });
       }
-  
+
       return acc;
     }, []);
 
