@@ -44,7 +44,7 @@ app.use(
 );
 
 
-app.get("/tokenranking", tokenRankingHour(0), getTokenRanking);
+app.get("/tokenranking", tokenRankingHour(), getTokenRanking);
 app.get("/tokenranking/1hr", tokenRankingHour(1), getTokenRanking);
 app.get("/tokenranking/6hr", tokenRankingHour(6), getTokenRanking);
 app.get("/tokenranking/12hr", tokenRankingHour(12), getTokenRanking);
