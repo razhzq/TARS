@@ -152,8 +152,10 @@ async function checkTokenChain(tokenName) {
     const tokenData = token.data.pairs;
     const hasEthChain = tokenData.some((obj) => obj.chainId === "ethereum");
     const hasSolChain = tokenData.some((obj) => obj.chainId === "solana");
+    const hasSymbol = tokenData.some((obj) => obj.baseToken.symbol.toLowerCase() === tokenName.toLowerCase() || obj.baseToken.symbol.toLowerCase().startsWith("$" + tokenName.toLowerCase()));
+    const hasVolume = tokenData.some((obj) => parseInt(obj.volume.h24) >= 50000); //change value for min volume
 
-    return hasEthChain || hasSolChain;
+    return (hasEthChain && hasSymbol && hasVolume) || (hasSolChain && hasSymbol && hasVolume) ;
   } catch (error) {
     console.log("dexScreenerAPi: ", error);
   }
@@ -217,7 +219,7 @@ async function saveTweetsToDb(tokenMatchedTweets, accountsMap) {
     const accountTier = accountDetails.signalTier;
 
     console.log(
-      `iteration: ${i} accountId:${accountId} accountTier:${accountTier}`
+      `iteration: ${i} accountId:${accountId} accountTier:${accountName}`
     );
 
     for (let j = 0; j < tweetSignals.length; j++) {
