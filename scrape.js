@@ -146,18 +146,23 @@ async function removeDuplicate(tweetsArray) {
 
 async function checkTokenChain(tokenName) {
   try {
-    const token = await axios.get(
-      `https://api.dexscreener.com/latest/dex/search?q=${tokenName}`
-    );
-    const tokenData = token.data.pairs;
-    const hasEthChain = tokenData.some((obj) => obj.chainId === "ethereum");
-    const hasSolChain = tokenData.some((obj) => obj.chainId === "solana");
-    const hasSymbol = tokenData.some((obj) => obj.baseToken.symbol.toLowerCase() === tokenName.toLowerCase() || obj.baseToken.symbol.toLowerCase().startsWith("$" + tokenName.toLowerCase()));
-    const hasVolume = tokenData.some((obj) => parseInt(obj.volume.h24) >= 50000); //change value for min volume
+    const response = await axios.get(`https://api.dexscreener.com/latest/dex/search?q=${tokenName}`);
+    const tokenData = response.data.pairs;
 
-    return (hasEthChain && hasSymbol && hasVolume) || (hasSolChain && hasSymbol && hasVolume) ;
+    // Filter tokens by chain
+    const filteredTokens = tokenData.filter(obj => obj.chainId === "ethereum" || obj.chainId === "solana");
+
+    // Check if any of the filtered tokens meet all conditions
+    return filteredTokens.some(obj => {
+      const hasSymbol = obj.baseToken.symbol.toLowerCase() === tokenName.toLowerCase() ||
+        obj.baseToken.symbol.toLowerCase().startsWith("$" + tokenName.toLowerCase());
+      const hasVolume = parseInt(obj.volume.h24) >= 50000; // Minimum volume condition
+
+      return hasSymbol && hasVolume;
+    });
   } catch (error) {
-    console.log("dexScreenerAPi: ", error);
+    console.error("dexScreenerAPI: ", error);
+    return false; // Explicitly return false in case of an error
   }
 }
 
