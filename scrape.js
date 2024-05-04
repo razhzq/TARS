@@ -31,7 +31,9 @@ async function twitterlogin() {
     console.error('Could not find the <span> element with the text "Next"');
   }
 
-  await page.waitForSelector('input[autocomplete="current-password"]');
+  await page.waitForSelector('input[autocomplete="current-password"]', {
+    timeout: 1000000,
+  });
   await page.type('input[autocomplete="current-password"]', "T6zcoXeGlN");
   await page.click('div[data-testid="LoginForm_Login_Button"]');
 
@@ -56,7 +58,7 @@ async function scrapeTweets(page) {
   });
 
   // wait for tweets to load
-  await page.waitForNavigation();
+  // await page.waitForNavigation();
   await page.waitForSelector('[data-testid="tweetText"]');
 
   let tweetsArray = [];
@@ -146,16 +148,23 @@ async function removeDuplicate(tweetsArray) {
 
 async function checkTokenChain(tokenName) {
   try {
-    const response = await axios.get(`https://api.dexscreener.com/latest/dex/search?q=${tokenName}`);
+    const response = await axios.get(
+      `https://api.dexscreener.com/latest/dex/search?q=${tokenName}`
+    );
     const tokenData = response.data.pairs;
 
     // Filter tokens by chain
-    const filteredTokens = tokenData.filter(obj => obj.chainId === "ethereum" || obj.chainId === "solana");
+    const filteredTokens = tokenData.filter(
+      (obj) => obj.chainId === "ethereum" || obj.chainId === "solana"
+    );
 
     // Check if any of the filtered tokens meet all conditions
-    return filteredTokens.some(obj => {
-      const hasSymbol = obj.baseToken.symbol.toLowerCase() === tokenName.toLowerCase() ||
-        obj.baseToken.symbol.toLowerCase().startsWith("$" + tokenName.toLowerCase());
+    return filteredTokens.some((obj) => {
+      const hasSymbol =
+        obj.baseToken.symbol.toLowerCase() === tokenName.toLowerCase() ||
+        obj.baseToken.symbol
+          .toLowerCase()
+          .startsWith("$" + tokenName.toLowerCase());
       const hasVolume = parseInt(obj.volume.h24) >= 50000; // Minimum volume condition
 
       return hasSymbol && hasVolume;

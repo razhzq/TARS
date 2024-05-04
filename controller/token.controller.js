@@ -17,9 +17,11 @@ module.exports.tokenRankingHour = (hour = 0) => {
 
     currentDate.setHours(hoursAgo);
     req.currentDate = currentDate;
-    if(hour == 0){
+
+    if (hour == 0) {
       req.hour = 0;
     }
+    req.hour = hour;
     next();
   };
 };
@@ -31,11 +33,15 @@ module.exports.getTokenRanking = async (req, res) => {
 
   const timeFilter = req.currentDate;
   const hourCond = req.hour;
-  console.log("hour cond", hourCond)
- // console.log(timeFilter);
+  console.log("hour cond", hourCond);
+  // console.log(timeFilter);
   //console.log("tweet time", tweets[0].tweetTime)
-  const timeFilteredTweets = tweets.filter(tweet => hourCond === 0 ? tweet.tweetTime <= timeFilter : tweet.tweetTime >= timeFilter);
-//console.log(timeFilteredTweets.length);
+  const timeFilteredTweets = tweets.filter((tweet) =>
+    hourCond === 0
+      ? tweet.tweetTime <= timeFilter
+      : tweet.tweetTime >= timeFilter
+  );
+  //console.log(timeFilteredTweets.length);
 
   const tokenMap = new Map();
   let furthestTimestamp = -Infinity;
@@ -45,7 +51,9 @@ module.exports.getTokenRanking = async (req, res) => {
 
   timeFilteredTweets.forEach(({ tweetTime, tweetToken }) => {
     if (tokenMap.has(tweetToken)) {
-      const timeDifference = Math.abs(new Date(tweetTime).getTime() - currentTime.getTime());
+      const timeDifference = Math.abs(
+        new Date(tweetTime).getTime() - currentTime.getTime()
+      );
       if (timeDifference > furthestTimestamp) {
         furthestTimestamp = timeDifference;
         // Retrieve the current value of latestTimeDetection and update it if necessary
