@@ -31,6 +31,8 @@ class Token {
       tokenId: t.dataValues.id,
       tokenName: t.dataValues.tokenName,
       tokenWeight: t.dataValues.tokenWeight,
+      network: t.dataValues.network,
+      link: t.dataValues.link
     }));
     return formattedTokens;
   }

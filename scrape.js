@@ -44,7 +44,8 @@ async function twitterlogin() {
   const xpathExpression = `//*[contains(text(), "${targetText}")]`;
   const [element] = await page.$x(xpathExpression);
   if (element) {
-    await element.click();
+    await element.evaluate(b => b.click());
+    // await element.click();
   }
   return page;
 }
@@ -154,9 +155,7 @@ async function checkTokenChain(tokenName) {
     const tokenData = response.data.pairs;
 
     // Filter tokens by chain
-    const filteredTokens = tokenData.filter(
-      (obj) => obj.chainId === "ethereum" || obj.chainId === "solana"
-    );
+    const filteredTokens = tokenData.filter((obj) => obj.chainId === "solana" || obj.chainId === "base" || obj.chainId === "ton");
 
     // Check if any of the filtered tokens meet all conditions
     return filteredTokens.some((obj) => {

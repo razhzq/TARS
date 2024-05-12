@@ -78,6 +78,7 @@ module.exports.getTokenRanking = async (req, res) => {
         earliestTimeDetection: tweetTime,
         latestTimeDetection: tweetTime,
         tweetToken,
+
       });
     }
   });
@@ -107,6 +108,8 @@ module.exports.getTokenRanking = async (req, res) => {
     }, []);
 
     tokenRanks[i].tokenWeight = token[0].tokenWeight;
+    tokenRanks[i].network = token[0].network;
+    tokenRanks[i].link = token[0].link;
     tokenRanks[i].totalMentioned = uniqueMentions.length;
   }
 
