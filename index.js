@@ -57,4 +57,4 @@ app.get("/", (_, res) => {
   res.status(200).json("Welcome to Trading Terminal API");
 });
 
-server.listen(8080, () => console.log(`app listening on port !`));
+server.listen(process.env.PORT || 8080, () => console.log(`app listening on port !`));
