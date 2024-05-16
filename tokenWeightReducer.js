@@ -15,7 +15,6 @@ async function main() {
             await Token.decreaseTokenWeight(filteredCandle[i].id, filteredCandle[i].increment);
             await Candle.updateCandleStatus(filteredCandle[i].id);
         }
-
         continue
     }
 
