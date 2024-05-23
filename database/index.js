@@ -15,6 +15,4 @@ db.mention = require('./mention.model')(sequelize, Sequelize);
 db.tweet = require('./tweet.model')(sequelize, Sequelize);
 db.candle = require('./candle.model')(sequelize, Sequelize);
 
-
-
 module.exports = db;

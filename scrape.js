@@ -35,7 +35,21 @@ async function twitterlogin() {
     timeout: 1000000,
   });
   await page.type('input[autocomplete="current-password"]', "T6zcoXeGlN");
-  await page.click('div[data-testid="LoginForm_Login_Button"]');
+
+  //span login
+  const spanLogin = await page.evaluateHandle((text) => {
+    const spans = Array.from(document.querySelectorAll("span"));
+    return spans.find((element) => element.textContent === text);
+  }, "Log in");
+
+  if (spanLogin) {
+    await spanLogin.click(); // Click on the <span> element with the text "Next"
+  } else {
+    console.error('Could not find the <span> element with the text "Next"');
+  }
+
+
+  // await page.click('div[data-testid="LoginForm_Login_Button"]');
 
   await page.waitForTimeout(4000);
   const targetText = "Following";

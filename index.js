@@ -16,7 +16,6 @@ const Tweet = require('./class/tweet.class');
 const db = require("./database/index");
 const { getTokenRanking, tokenRankingHour } = require('./controller/token.controller');
 
-
 sequelize
   .authenticate()
   .then(() => {
@@ -35,14 +34,12 @@ const app = express();
 
 const server = createServer(app);
 
-
 app.use(bodyParser.json());
 app.use(
   cors({
     origin: "*",
   })
 );
-
 
 app.get("/tokenranking", tokenRankingHour(), getTokenRanking);
 app.get("/tokenranking/1hr", tokenRankingHour(1), getTokenRanking);
