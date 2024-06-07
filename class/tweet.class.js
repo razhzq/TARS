@@ -10,12 +10,21 @@ class Tweet {
   constructor() {}
 
   static async saveNewTweet(string, account, time, token) {
-    await tweet.create({
-      tweetString: string,
-      tweetWho: account,
-      tweetTime: time,
-      tweetToken: token,
-    });
+
+   // validate parameter (if one of arguments is undefined)
+
+
+    try {
+      await tweet.create({
+        tweetString: string,
+        tweetWho: account,
+        tweetTime: time,
+        tweetToken: token,
+      });
+    } catch (err)
+    {
+      console.log(`error saveNewTweet for token: ${token}`)
+    }
   }
 
   static async getTweets() {

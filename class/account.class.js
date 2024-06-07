@@ -10,10 +10,15 @@ class Account {
   constructor() {}
 
   static async saveAccount(accountName, tier) {
-    await account.create({
-      twitterHandle: accountName,
-      signalTier: tier,
-    });
+    try {
+      await account.create({
+        twitterHandle: accountName,
+        signalTier: tier,
+      });
+    } catch (err)
+    {
+      console.log(`error creating account for ${accountName}`);
+    }
   }
 
   static async getAccountDetails(accountName) {

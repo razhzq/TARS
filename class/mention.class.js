@@ -10,10 +10,15 @@ class Mention {
   constructor() {}
 
   static async saveTokenMention(tokenId, accountId) {
-    await mention.create({
-      tokenMention: tokenId,
-      accountMention: accountId,
-    });
+    try {
+      await mention.create({
+        tokenMention: tokenId,
+        accountMention: accountId,
+      });
+    } catch(err)
+    {
+      console.log(`error saveTokenMention for token: ${tokenId}`);
+    }
   }
 
   static async getAllMention() {

@@ -10,12 +10,18 @@ class Token {
   constructor() {}
 
   static async saveNewToken(tokenName, tokenNetwork, tokenLink) {
-    await token.create({
-      tokenName: tokenName,
-      tokenWeight: 0,
-      network: tokenNetwork,
-      link: tokenLink
-    });
+    try {
+      await token.create({
+        tokenName: tokenName,
+        tokenWeight: 0,
+        network: tokenNetwork,
+        link: tokenLink
+      });
+    } catch (err)
+    {
+      console.log(`error saveNewToken for token: ${tokenName}`);
+    }
+    
   }
 
   static async getTokenId(tokenName) {

@@ -10,17 +10,28 @@ class Candle {
   constructor() {}
 
   static async newTokenCandle(tokenId, tokenWeight, increment) {
-    await candle.create({
-      token: tokenId,
-      tokenWeight: tokenWeight,
-      checkpoint: new Date(),
-      increment: increment,
-      dStatus: 0
-    });
+    try {
+      await candle.create({
+        token: tokenId,
+        tokenWeight: tokenWeight,
+        checkpoint: new Date(),
+        increment: increment,
+        dStatus: 0
+      });
+    } catch (err)
+    {
+      console.log(`error newTokenCandle for token: ${tokenId}`);
+    }
   }
 
   static async updateCandleStatus(candleId) {
-    await candle.update({ dStatus: 1 }, { where: { id: candleId } });
+    try {
+      await candle.update({ dStatus: 1 }, { where: { id: candleId } });
+    } catch (err)
+    {
+      console.log(`error updateCandleStatus: ${candleId}`);
+    }
+  
   }
 
   static async getAllCandle() {
