@@ -9,10 +9,12 @@ const token = require("../database/token.model")(sequelize, Sequelize);
 class Token {
   constructor() {}
 
-  static async saveNewToken(tokenName) {
+  static async saveNewToken(tokenName, tokenNetwork, tokenLink) {
     await token.create({
       tokenName: tokenName,
       tokenWeight: 0,
+      network: tokenNetwork,
+      link: tokenLink
     });
   }
 

@@ -25,7 +25,7 @@ sequelize
     console.error("Unable to connect to the database:", err);
   });
 
-db.sequelize.sync().then(() => {
+db.sequelize.sync({force: true}).then(() => {
     console.log('drop and rescyn db');
 })
 

@@ -188,6 +188,35 @@ async function checkTokenChain(tokenName) {
   }
 }
 
+
+async function getTokenNetwork(tokenName)
+{
+  try {
+    let tokenData;
+    let tokenObject;
+    console.log('Getting token details: ', tokenName);
+    const response = await axios.get(
+        `https://api.dexscreener.com/latest/dex/search?q=${tokenName}`
+    )
+
+    //filter according through chains
+    tokenData = response.data.pairs;
+    tokenData = tokenData.filter((item) => item.chainId === "solana" || item.chainId === "base" || item.chainId === "ton");
+
+    tokenData = tokenData.sort((a,b) => b.liquidity.usd - a.liquidity.usd);
+    tokenObject = {
+      network: tokenData[0].chainId,
+      url: tokenData[0].url
+    }
+    return tokenObject;
+
+  } catch (err)
+  {
+    console.log(`Event error getTokenNetwork: ${err.message}`);
+    return null;
+  }
+}
+
 // extract token from the unique arrays and add token array to the tweet objectg
 async function extractToken(newTweetsArray) {
   let tokenMatchedTweets = [];
@@ -203,6 +232,8 @@ async function extractToken(newTweetsArray) {
           return checkStatus !== false ? token : null;
         })
       );
+      // get token network
+      // const tokenNetwork = await getTokenNetwork(token)
 
       const filteredSignalMatch = signalMatch.filter((match) => match !== null);
 
@@ -216,7 +247,6 @@ async function extractToken(newTweetsArray) {
       }
     } else continue;
   }
-  console.log(tokenMatchedTweets.length);
   return tokenMatchedTweets;
 }
 
@@ -237,7 +267,6 @@ async function handleAccountDetails(accountName, accountsMap) {
 // save tweets tp db
 async function saveTweetsToDb(tokenMatchedTweets, accountsMap) {
   let detectedTokens = [];
-  console.log("tweets to process: ", tokenMatchedTweets.length);
   for (let i = 0; i < tokenMatchedTweets.length; i++) {
     const tweetSignals = tokenMatchedTweets[i].signals;
     const accountName = tokenMatchedTweets[i].tweetWho;
@@ -251,8 +280,14 @@ async function saveTweetsToDb(tokenMatchedTweets, accountsMap) {
 
     for (let j = 0; j < tweetSignals.length; j++) {
       const tokenExist = await Token.checkTokenIfExist(tweetSignals[j]);
+      const tokenNetwork = await getTokenNetwork(tweetSignals[j]);
+
+      if(!tokenNetwork)
+        continue;
+
+      console.log(`token network: ${tokenNetwork.network} token url: ${tokenNetwork.url} `);
       if (!tokenExist) {
-        await Token.saveNewToken(tweetSignals[j]);
+        await Token.saveNewToken(tweetSignals[j], tokenNetwork.network, tokenNetwork.url);
       }
       await Tweet.saveNewTweet(
         tokenMatchedTweets[i].tweetString,
@@ -299,3 +334,8 @@ async function saveTweetsToDb(tokenMatchedTweets, accountsMap) {
     await saveTweetsToDb(tokenTweets, accountMap);
   }, 60000);
 })();
+
+
+
+
+ 
