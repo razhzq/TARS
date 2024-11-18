@@ -1,7 +1,7 @@
 const axios = require('axios');
 
 
-async function getTokenHighestLiquidity(tokenName) {
+module.exports.getTokenHighestLiquidity = async (tokenName) => {
     try {
 
         let tokenData;
@@ -11,7 +11,7 @@ async function getTokenHighestLiquidity(tokenName) {
 
         //filter according through chains
         tokenData = response.data.pairs;
-        tokenData = tokenData.filter((item) => item.chainId === "solana" || item.chainId === "base" || item.chainId === "ton");
+        tokenData = tokenData.filter((item) => item.chainId === "solana");
 
         tokenData = tokenData.sort((a,b) => b.liquidity.usd - a.liquidity.usd);
 
@@ -23,9 +23,11 @@ async function getTokenHighestLiquidity(tokenName) {
 }
 
 
+
+
 async function main()
 {
-    getTokenHighestLiquidity('pepe');
+    getTokenHighestLiquidity('pnut');
 }
 
 main();

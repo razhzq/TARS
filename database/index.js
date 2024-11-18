@@ -14,5 +14,6 @@ db.account = require('./account.model')(sequelize, Sequelize);
 db.mention = require('./mention.model')(sequelize, Sequelize);
 db.tweet = require('./tweet.model')(sequelize, Sequelize);
 db.candle = require('./candle.model')(sequelize, Sequelize);
+db.paper_trade = require('./paperTrade.model')(sequelize, Sequelize);
 
 module.exports = db;
