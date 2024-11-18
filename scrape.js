@@ -9,7 +9,7 @@ const Candle = require("./class/candle.class");
 const { getAccountMap } = require("./helpers");
 
 async function twitterlogin() {
-  const browser = await puppeteer.launch({ headless: false });
+  const browser = await puppeteer.launch({ headless: true });
 
   const page = await browser.newPage();
   await page.goto("https://twitter.com");
